@@ -1,0 +1,25 @@
+# Copied from templates/automation/atlas-notify.caller.yml of WORKSPACE v0.6.0.
+# Tells the organization's hub that this project changed, so its atlas follows within minutes (CTX-37,
+# docs/01-context/organization-atlas.md).
+# Requires the organization secret ATLAS_NOTIFY_TOKEN (a fine-grained token for the hub repository only, Contents read
+# and write). Without it the job warns and passes: it never fails this project's CI.
+name: atlas-notify
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    types: [opened, synchronize, reopened, closed, ready_for_review]
+
+# The notice uses only the secret; the job needs no access to this repository.
+permissions: {}
+
+jobs:
+  notify:
+    # Pin to a WORKSPACE tag, never to a branch (AUT-07).
+    uses: VHA-Advocacia/WORKSPACE/.github/workflows/workspace-atlas-notify.yml@v0.6.0
+    with:
+      # The organization's profile repository, which builds the atlas.
+      hub: VHA-Advocacia/PROFILE
+    secrets:
+      atlas-notify-token: ${{ secrets.ATLAS_NOTIFY_TOKEN }}
